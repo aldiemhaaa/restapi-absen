@@ -7,6 +7,7 @@ from datetime import datetime
 import cx_Oracle
 import mysql.connector
 import uvicorn
+import socket
 
 app = FastAPI()
 
@@ -24,7 +25,9 @@ dthour = dt.hour
 dtmnt = dt.minute
 dtsec = dt.second
 datefix = str(dtyear) + "-" + str(dtmonth) + "-" + str(dtday) + " " +  str(dthour) + ":" +  str(dtmnt) + ":" +  str(dtsec)
-dateTimeNow = datefix 
+dateTimeNow = datefix
+hostname = socket.gethostname()    
+IPAddr = socket.gethostbyname(hostname)    
 
 
 class Absen(BaseModel):
@@ -131,4 +134,4 @@ def deletePeserta(peserta:DeletePeserta):
         raise
 
 if __name__ == "__main__":
-    uvicorn.run(app,host="192.168.1.12",port =8000)
+    uvicorn.run(app,host=IPAddr,port =8000)
