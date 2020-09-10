@@ -36,102 +36,110 @@ class Absen(BaseModel):
     lat : str
     long : str
     waktuKehadiran : Optional[str] = dateTimeNow
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "nip": 12345,
+                "namaPeserta": "Nama Peserta",
+                "lat": "-6.917464",
+                "long": "107.619125",
+            }
+        }
 
 class Peserta(BaseModel):
     nama : str
     nip : int
     # namaUpdate : Optional[str] = None
+    class Config:
+        schema_extra = {
+            "example": {
+                "nama": "Nama Peserta",
+                "nip": 12345,
+            }
+        }
 
 class UpdatePeserta(BaseModel):
     nama: str
     nip : int
+    class Config:
+        schema_extra = {
+            "example": {
+                "nama": "Kucing Garong",
+                "nip": 12345,
+            }
+        }
 
 class DeletePeserta(BaseModel):
     nip : int
 
-
-@app.get("/")
-async def index():
-    return {"message":"Hello World"}
+    class Config:
+        schema_extra = {
+            "example": {
+                "nip": 12345,
+            }
+        }
 
 
 @app.post('/absen/')
 def submitAbsen(absen : Absen):
-    try:
-        waktuhadir = absen.waktuKehadiran
-        nip = absen.nip
-        lat = absen.lat
-        long = absen.long
-        cursor = mydb.cursor()
-        cursor.execute("INSERT INTO `absensi`(`nip`, `waktu_absen`, `lati_maps`, `long_maps`) VALUES (%d, '%s','%s','%s')" % (nip, waktuhadir,lat , long))
-        mydb.commit()
-        mydb.close()
-        pesertanya = absen.dict()
-        # print(pesertanya)
-        sukses = {'response': [{'code':'200'},{'message': 'success'}]}
-        resp = dict(sukses)
-        resp.update(pesertanya)
-        return resp
-    except:
-        mydb.rollback()
-        raise
-        return "error"
+    waktuhadir = absen.waktuKehadiran
+    nip = absen.nip
+    lat = absen.lat
+    long = absen.long
+    cursor = mydb.cursor()
+    cursor.execute("INSERT INTO `absensi`(`nip`, `waktu_absen`, `lati_maps`, `long_maps`) VALUES (%d, '%s','%s','%s')" % (nip, waktuhadir,lat , long))
+    mydb.commit()
+    mydb.close()
+    pesertanya = absen.dict()
+    # print(pesertanya)
+    sukses = {'response': [{'code':'200'},{'message': 'success'}]}
+    resp = dict(sukses)
+    resp.update(pesertanya)
+    return resp
 
 
 @app.post('/insertpeserta/')
 def insertPeserta(peserta : Peserta):
-    try:
-        nip = peserta.nip
-        nama = peserta.nama
-        cursor = mydb.cursor()
-        cursor.execute("INSERT INTO `user`(`nip`, `nama`) VALUES (%d, '%s')" % (nip,nama))
-        mydb.commit()
-        mydb.close()
-        data = peserta.dict()
-        sukses = {'response': [{'code':'200'},{'message': 'success'}]}
-        resp = dict(sukses)
-        resp.update(data)
-        return resp
-    except:
-        mydb.rollback()
-        raise
-    
+    nip = peserta.nip
+    nama = peserta.nama
+    cursor = mydb.cursor()
+    cursor.execute("INSERT INTO `user`(`nip`, `nama`) VALUES (%d, '%s')" % (nip,nama))
+    mydb.commit()
+    mydb.close()
+    data = peserta.dict()
+    sukses = {'response': [{'code':'200'},{'message': 'success'}]}
+    resp = dict(sukses)
+    resp.update(data)
+    return resp
 
 @app.post('/updatepeserta/')
 def updatePeserta(peserta: UpdatePeserta):
-    try:
-        nip = peserta.nip
-        namaGanti = peserta.nama
-        cursor = mydb.cursor()
-        cursor.execute("UPDATE `user` SET `nama`='%s' WHERE `nip`= %d" % (namaGanti,nip))
-        mydb.commit()
-        mydb.close()
-        data = peserta.dict()
-        sukses = {'response': [{'code':'200'},{'message': 'success'}]}
-        resp = dict(sukses)
-        resp.update(data)
-        return resp
-    except:
-        mydb.rollback()
-        raise
+    nip = peserta.nip
+    namaGanti = peserta.nama
+    cursor = mydb.cursor()
+    cursor.execute("UPDATE `user` SET `nama`='%s' WHERE `nip`= %d" % (namaGanti,nip))
+    mydb.commit()
+    mydb.close()
+    data = peserta.dict()
+    sukses = {'response': [{'code':'200'},{'message': 'success'}]}
+    resp = dict(sukses)
+    resp.update(data)
+    return resp
 
 @app.post('/deletepeserta/')
 def deletePeserta(peserta:DeletePeserta):
-    try:
-        nip = peserta.nip
-        # nama = peserta.nama
-        cursor = mydb.cursor()
-        cursor.execute("DELETE FROM `user` WHERE `nip` = %d" % (nip))
-        mydb.commit()
-        mydb.close()
-        data = peserta.dict()
-        sukses = {'response': [{'code':'200'},{'message': 'success'}]}
-        resp = dict(sukses)
-        resp.update(data)
-        return resp
-    except:
-        mydb.rollback()
-        raise
-
+    nip = peserta.nip
+    # nama = peserta.nama
+    cursor = mydb.cursor()
+    cursor.execute("DELETE FROM `user` WHERE `nip` = %d" % (nip))
+    mydb.commit()
+    mydb.close()
+    data = peserta.dict()
+    sukses = {'response': [{'code':'200'},{'message': 'success'}]}
+    resp = dict(sukses)
+    resp.update(data)
+    return resp
+   
 if __name__ == "__main__":
     uvicorn.run(app,host=IPAddr,port =8000)
